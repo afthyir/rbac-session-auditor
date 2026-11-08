@@ -29,8 +29,7 @@ Three roles. Instant revocation. A plain-English audit log of everything that ge
 
 <br />
 
-[**Live Demo**](https://auth.afthyir.co.uk) &nbsp;|&nbsp; [**Architecture**](#architecture) &nbsp;|&nbsp; [**Quick Start**](#quick-start) &nbsp;|&nbsp; [**Security**](#security-choices)
-**Walkthrough:** [docs/GUIDE.md](docs/GUIDE.md)
+[**Live Demo**](https://auth.afthyir.co.uk) &nbsp;|&nbsp; [**Walkthrough**](docs/GUIDE.md) &nbsp;|&nbsp; [**Architecture**](#architecture) &nbsp;|&nbsp; [**Quick Start**](#quick-start) &nbsp;|&nbsp; [**Security**](#security-choices)
 
 </div>
 
