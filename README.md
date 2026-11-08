@@ -49,7 +49,7 @@ Most RBAC demos check a role in a client component and call it a day. This one a
 | <img src="assets/icons/hidden.svg" width="28" alt="" /> | **Hidden routes** | `/admin` and `/engineer` return `404` to people without access, so they can't tell the pages exist. |
 
 > *"User 3f2a9c1d (guest) tried to open /admin from 203.0.113.7 - access denied"*
-> — a real line from the audit log.
+> - a real line from the audit log.
 
 ---
 
