@@ -1,0 +1,76 @@
+# Local-only Redis for development and verification.
+#
+# Usage (secrets come from your untracked .env.local, never from this file):
+#   cp .env.example .env.local        # then fill in REDIS_PASSWORD / REDIS_REST_TOKEN
+#   docker compose --env-file .env.local up -d
+#
+# Two services:
+#   redis      - the real datastore (TCP, used by the Node runtime via ioredis)
+#   redis-rest - an HTTP front-end for Redis (Upstash-compatible REST API).
+#                Next.js Edge Middleware cannot open raw TCP sockets, so it talks
+#                to Redis over fetch(). In production, point REDIS_REST_URL at
+#                Upstash (or any compatible gateway) instead of this container.
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: portfolio-redis
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env.local}
+    command:
+      - sh
+      - -c
+      # exec so redis-server is PID 1 and receives SIGTERM for clean shutdown.
+      # volatile-ttl: under memory pressure evict keys closest to expiry first,
+      # which are sessions/probe counters, never silently stalling writes.
+      - >
+        exec redis-server
+        --requirepass "$$REDIS_PASSWORD"
+        --appendonly yes
+        --maxmemory 128mb
+        --maxmemory-policy volatile-ttl
+        --protected-mode yes
+        --rename-command FLUSHALL ""
+        --rename-command FLUSHDB ""
+        --rename-command DEBUG ""
+    ports:
+      # Bound to loopback only: never exposed to the LAN, even on a dev laptop.
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=$$REDIS_PASSWORD redis-cli ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # Container hardening
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  redis-rest:
+    # Pin by digest for reproducible, supply-chain-safe builds before publishing.
+    image: hiett/serverless-redis-http:latest
+    container_name: portfolio-redis-rest
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: ${REDIS_REST_TOKEN:?Set REDIS_REST_TOKEN in .env.local}
+      SRH_CONNECTION_STRING: redis://default:${REDIS_PASSWORD}@redis:6379
+    ports:
+      - "127.0.0.1:8079:80"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  redis-data:
