@@ -1,17 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function submit(mode: "in" | "up") {
+    // Read the boxes directly so password-manager autofill is picked up too.
+    const form = new FormData(formRef.current ?? undefined);
+    const email = String(form.get("email") ?? "").trim();
+    const password = String(form.get("password") ?? "");
+
+    if (!email || password.length < 8) {
+      setMessage("Enter your email and a password of at least 8 characters.");
+      return;
+    }
+
     setBusy(true);
     setMessage("");
 
@@ -56,14 +65,21 @@ export function LoginForm() {
 
   return (
     <form
+      ref={formRef}
       className="space-y-3"
       onSubmit={(e) => {
         e.preventDefault();
         submit("in");
       }}
     >
-      <input className="input" type="email" placeholder="Email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input className="input" type="password" placeholder="Password (8+ characters)" autoComplete="current-password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} />
+      <input className="input" name="email" type="email" placeholder="Email" autoComplete="email" />
+      <input
+        className="input"
+        name="password"
+        type="password"
+        placeholder="Password (8+ characters)"
+        autoComplete="current-password"
+      />
       <div className="flex gap-2 pt-1">
         <button disabled={busy} className="btn btn-primary flex-1">Sign in</button>
         <button type="button" disabled={busy} onClick={() => submit("up")} className="btn flex-1">
