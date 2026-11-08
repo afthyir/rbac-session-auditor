@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="94" height="24" viewBox="0 0 94 24" role="img" aria-label="Fail: Closed">
+<title>Fail: Closed</title>
+<clipPath id="r"><rect width="94" height="24" rx="5"/></clipPath>
+<g clip-path="url(#r)"><rect width="40" height="24" fill="#1f2937"/><rect x="40" width="54" height="24" fill="#b91c1c"/></g>
+<g font-family="Verdana,DejaVu Sans,Geneva,sans-serif" font-size="11" font-weight="600" text-anchor="middle">
+<text x="20.0" y="16" fill="#e5e7eb">Fail</text>
+<text x="67.0" y="16" fill="#ffffff">Closed</text></g></svg>

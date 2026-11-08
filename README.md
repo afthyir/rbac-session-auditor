@@ -1,30 +1,35 @@
 <div align="center">
 
-# RBAC Session Auditor
+<img src="assets/banner.svg" alt="RBAC Session Auditor" width="100%" />
 
-**Role-based access control for Next.js, done the careful way.**
-Every request is checked against a Supabase login *and* a Redis session whitelist.
+<br />
+
+**Every request is checked against a Supabase login *and* a Redis session whitelist.**
 Three roles. Instant revocation. A plain-English audit log of everything that gets denied.
 
 <br />
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-auth.afthyir.co.uk-22c55e?style=for-the-badge&logo=vercel&logoColor=white)](https://auth.afthyir.co.uk)
+<a href="https://auth.afthyir.co.uk"><img src="assets/badges/live-demo.svg" alt="Live Demo" /></a>
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![Supabase](https://img.shields.io/badge/Supabase-Auth-3FCF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
-[![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
-[![Edge Runtime](https://img.shields.io/badge/Edge-Middleware-000000?style=flat-square&logo=vercel&logoColor=white)](https://vercel.com)
+<br />
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Security](https://img.shields.io/badge/Default-Deny-critical?style=flat-square&logo=springsecurity&logoColor=white)](#security-choices)
-[![Fail Closed](https://img.shields.io/badge/Fail-Closed-red?style=flat-square)](#security-choices)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](#contributing)
+<a href="https://nextjs.org"><img src="assets/badges/nextjs.svg" alt="Next.js 15" /></a>
+<a href="https://www.typescriptlang.org"><img src="assets/badges/typescript.svg" alt="TypeScript 5" /></a>
+<a href="https://react.dev"><img src="assets/badges/react.svg" alt="React 19" /></a>
+<a href="https://tailwindcss.com"><img src="assets/badges/tailwind.svg" alt="Tailwind CSS 4" /></a>
+<a href="https://supabase.com"><img src="assets/badges/supabase.svg" alt="Supabase Auth" /></a>
+<a href="https://redis.io"><img src="assets/badges/redis.svg" alt="Redis 7" /></a>
+<a href="https://docs.docker.com/compose/"><img src="assets/badges/docker.svg" alt="Docker Compose" /></a>
+<a href="https://nextjs.org/docs/app/building-your-application/routing/middleware"><img src="assets/badges/edge.svg" alt="Edge Middleware" /></a>
 
-[**Live Demo**](https://auth.afthyir.co.uk) · [**Architecture**](#architecture) · [**Quick Start**](#quick-start) · [**Security**](#security-choices)
+<a href="LICENSE"><img src="assets/badges/license.svg" alt="MIT License" /></a>
+<a href="#security-choices"><img src="assets/badges/default-deny.svg" alt="Default Deny" /></a>
+<a href="#security-choices"><img src="assets/badges/fail-closed.svg" alt="Fail Closed" /></a>
+<a href="#contributing"><img src="assets/badges/prs.svg" alt="PRs welcome" /></a>
+
+<br />
+
+[**Live Demo**](https://auth.afthyir.co.uk) &nbsp;|&nbsp; [**Architecture**](#architecture) &nbsp;|&nbsp; [**Quick Start**](#quick-start) &nbsp;|&nbsp; [**Security**](#security-choices)
 
 </div>
 
@@ -34,14 +39,14 @@ Three roles. Instant revocation. A plain-English audit log of everything that ge
 
 Most RBAC demos check a role in a client component and call it a day. This one assumes the client is hostile and the middleware might be bypassed, then layers defenses so a single mistake doesn't become a breach.
 
-| Feature | What it means |
-|---|---|
-| **Three enforced roles** | Guest, Engineer and Admin, enforced in Edge middleware, not client-side code. |
-| **Instant revocation** | Sessions live in a Redis whitelist, so a valid-looking JWT stops working the moment its session is revoked. |
-| **Live role changes** | The role is read from Redis on every request. An admin's change applies on the user's next click. |
-| **Readable audit log** | Logins, logouts, role changes, revocations and every denied request, written as plain sentences. |
-| **BOLA protection** | `/api/users/:id` only returns your own profile unless you're an admin, and "not yours" looks identical to "doesn't exist". |
-| **Hidden routes** | `/admin` and `/engineer` return `404` to people without access, so they can't tell the pages exist. |
+| | Feature | What it means |
+|:---:|---|---|
+| <img src="assets/icons/roles.svg" width="28" alt="" /> | **Three enforced roles** | Guest, Engineer and Admin, enforced in Edge middleware, not client-side code. |
+| <img src="assets/icons/revoke.svg" width="28" alt="" /> | **Instant revocation** | Sessions live in a Redis whitelist, so a valid-looking JWT stops working the moment its session is revoked. |
+| <img src="assets/icons/live-role.svg" width="28" alt="" /> | **Live role changes** | The role is read from Redis on every request. An admin's change applies on the user's next click. |
+| <img src="assets/icons/audit.svg" width="28" alt="" /> | **Readable audit log** | Logins, logouts, role changes, revocations and every denied request, written as plain sentences. |
+| <img src="assets/icons/bola.svg" width="28" alt="" /> | **BOLA protection** | `/api/users/:id` only returns your own profile unless you're an admin, and "not yours" looks identical to "doesn't exist". |
+| <img src="assets/icons/hidden.svg" width="28" alt="" /> | **Hidden routes** | `/admin` and `/engineer` return `404` to people without access, so they can't tell the pages exist. |
 
 > *"User 3f2a9c1d (guest) tried to open /admin from 203.0.113.7 - access denied"*
 > — a real line from the audit log.
