@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="121" height="24" viewBox="0 0 121 24" role="img" aria-label="Edge: Middleware">
-<title>Edge: Middleware</title>
-<clipPath id="r"><rect width="121" height="24" rx="5"/></clipPath>
-<g clip-path="url(#r)"><rect width="40" height="24" fill="#1f2937"/><rect x="40" width="81" height="24" fill="#374151"/></g>
-<g font-family="Verdana,DejaVu Sans,Geneva,sans-serif" font-size="11" font-weight="600" text-anchor="middle">
-<text x="20.0" y="16" fill="#e5e7eb">Edge</text>
-<text x="80.5" y="16" fill="#ffffff">Middleware</text></g></svg>
