@@ -1,16 +1,18 @@
 # RBAC Session Auditor
 
-A small Next.js app that shows how I'd handle access control properly: every request is checked against a Supabase login **and** a Redis session whitelist, three roles are enforced, and every denied attempt or session change lands in an audit log.
+Role-based access control for Next.js, done the careful way. Every request is checked against a Supabase login **and** a Redis session whitelist, three roles are enforced, and every denied attempt or session change lands in an audit log.
 
-**Live demo:** https://auth.afthyir.co.uk &nbsp;·&nbsp; **Stack:** Next.js 15 (App Router), TypeScript, Tailwind, Supabase Auth, Redis
+**Live demo:** https://auth.afthyir.co.uk
 
-## What it does
+**Stack:** Next.js 15 (App Router), TypeScript, Tailwind, Supabase Auth, Redis
 
-- **Three roles:** Guest, Engineer, Admin. New accounts start as Guest.
-- **Edge middleware** checks every request: clean the path, verify the Supabase JWT, look the session up in Redis, then check the role.
-- **Instant revocation.** Sessions live in a Redis whitelist, so an admin can kick someone out (or change their role) and it applies on their next request, not when the token expires.
-- **Audit log.** Logins, logouts, role changes, revocations and every denied request, shown in the admin panel as plain sentences, e.g. *"User 3f2a9c1d (guest) tried to open /admin from 203.0.113.7 - access denied"*.
-- **BOLA protection.** `/api/users/:id` only returns your own profile unless you're an admin. "Not yours" and "doesn't exist" give the same 404.
+## What it shows
+
+- **Three roles** (Guest, Engineer, Admin) enforced in Edge middleware, not in client-side code.
+- **Instant revocation.** Sessions sit in a Redis whitelist, so a valid-looking token stops working the moment its session is revoked.
+- **Live role changes.** The role is read from Redis on every request, so an admin's change applies on the user's next click.
+- **Audit log.** Logins, logouts, role changes, revocations and every denied request, written as plain sentences, e.g. *"User 3f2a9c1d (guest) tried to open /admin from 203.0.113.7 - access denied"*.
+- **BOLA protection.** `/api/users/:id` only returns your own profile unless you're an admin, and "not yours" looks identical to "doesn't exist".
 
 ## How a request flows
 
@@ -18,52 +20,23 @@ A small Next.js app that shows how I'd handle access control properly: every req
 browser ──► middleware (Edge)
               1. clean the path (no ../, double encoding, etc.)
               2. verify the Supabase JWT (pinned algorithm, issuer, audience)
-              3. is the session in the Redis whitelist?  ── no ──► 401 / 404
-              4. does the role (from Redis) allow this route? ── no ──► 403 / 404
+              3. is the session in the Redis whitelist?   no ──► 401 / 404
+              4. does the role (from Redis) allow it?     no ──► 403 / 404
               5. forward verified identity headers
             ──► page or API route (checks again, see lib/auth.ts)
 ```
 
-If Redis is unreachable the middleware answers 503. It never lets a request through because it couldn't check.
+## Security choices
 
-## Run it locally
-
-You need Node 20+, Docker, and a free [Supabase](https://supabase.com) project.
-
-```bash
-git clone https://github.com/afthyir/rbac-session-auditor.git
-cd rbac-session-auditor
-npm install
-
-cp .env.example .env.local     # then fill it in (see below)
-npm run redis:up               # starts Redis + an HTTP gateway for it
-```
-
-1. In Supabase, open the SQL editor and run `supabase/schema.sql`.
-2. Copy your project URL, anon key and service role key into `.env.local`. If your project uses the older JWT secret, add that too; otherwise leave it empty and the app uses the project's public keys.
-3. Pick any long random values for `REDIS_PASSWORD` and `REDIS_REST_TOKEN` (`openssl rand -base64 32`). Make `REDIS_URL` use the same password.
-4. For quick testing, turn off "Confirm email" in Supabase under Authentication > Providers > Email.
-
-```bash
-npm run dev
-```
-
-Open http://localhost:3000, create an account, then make yourself admin by running the commented `update` at the bottom of `supabase/schema.sql`. Sign out and back in.
-
-## Deploy
-
-Hosting is Vercel; Redis is [Upstash](https://upstash.com) (free tier). Add these in Vercel > Project > Settings > Environment Variables:
-
-| Variable | Where it comes from |
-| --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase > Settings > API |
-| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Supabase > Settings > API |
-| `SUPABASE_JWT_SECRET` | Supabase JWT secret, or leave empty on newer projects |
-| `REDIS_URL` | Upstash TCP URL (starts with `rediss://`) |
-| `REDIS_REST_URL`, `REDIS_REST_TOKEN` | Upstash REST URL and token |
-| `SESSION_TTL_SECONDS` | Optional, defaults to 3600 |
-
-Nothing secret is committed. `.env.local` is git-ignored and only `.env.example` (placeholders) is tracked.
+- **Default deny.** Any route not on the public list needs a session.
+- **Fail closed.** If Redis can't be reached, the answer is 503, never "let them through".
+- **Pinned JWT algorithms**, with issuer and audience checked, so forged or re-purposed tokens fail.
+- **Hidden routes.** `/admin` and `/engineer` return 404 to people without access, so they can't tell the pages exist.
+- **No trusting the client.** Identity headers sent by the browser are stripped before the verified ones are added. Roles come from the database, never from the request.
+- **Second check inside the app.** Pages and API routes verify the session again, in case the middleware is ever bypassed.
+- **Tokens stay out of JavaScript.** The session token lives in an httpOnly cookie, and state-changing routes check the request origin.
+- **Rate limiting** on repeated denied requests, per IP.
+- **No stack traces or failure reasons** in responses, and no secrets in the repo.
 
 ## Project layout
 
@@ -80,22 +53,31 @@ src/
     request.ts           client IP + same-origin check
   app/
     login/  dashboard/  engineer/  admin/
-    api/auth/{session,logout}   start and end a session
-    api/users/[id]              BOLA example
+    api/auth/{session,logout}
+    api/users/[id]       BOLA example
     api/admin/{audit,revoke,role}
 supabase/schema.sql      profiles table + new-user trigger
 docker-compose.yml       local Redis
 ```
 
-## Known limits
+## Run it yourself
 
-- Sessions last as long as the Supabase access token (one hour by default) and there's no refresh flow, so you sign in again after that.
-- The rate limiting is per IP and only counts denied requests. A production system would also want a CAPTCHA on sign-up.
-- The Content Security Policy allows inline scripts because Next.js needs them without extra nonce setup.
-- Roles are only changed through the admin panel or directly in Supabase.
+You'll need Node 20+, Docker and a Supabase project.
 
-## Why Next 15 and not 16?
+```bash
+npm install
+cp .env.example .env.local   # fill in the placeholders
+npm run redis:up
+npm run dev
+```
 
-Next.js 16 renamed `middleware.ts` to `proxy.ts` and moved it off the Edge runtime. This project deliberately uses Edge middleware, so it stays on 15.
+Run `supabase/schema.sql` in your Supabase SQL editor first. Everything the app reads from the environment is listed, with comments, in `.env.example`.
+
+## Limits
+
+- Sessions last as long as the Supabase access token (an hour by default) and there is no refresh flow.
+- Rate limiting only counts denied requests. A real deployment would add a CAPTCHA on sign-up.
+- The CSP allows inline scripts, because Next.js needs them without extra nonce setup.
+- It stays on Next.js 15 on purpose: version 16 moved middleware off the Edge runtime.
 
 MIT licensed.
