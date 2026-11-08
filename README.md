@@ -182,20 +182,20 @@ Open the Supabase **SQL editor** and run [`supabase/schema.sql`](supabase/schema
 Create `.env.local` in the project root:
 
 ```bash
-# ── Supabase ──────────────────────────────────────────────
+#                  Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<service role key>      # server only, never expose
 SUPABASE_JWT_SECRET=<optional: legacy HS256 secret> # omit to verify via JWKS
 
-# ── Redis (local Docker) ──────────────────────────────────
+#                  Redis (local Docker)
 REDIS_PASSWORD=<a long random string>
 REDIS_URL=redis://default:<REDIS_PASSWORD>@127.0.0.1:6379
 REDIS_REST_URL=http://127.0.0.1:8079
 REDIS_REST_TOKEN=<another long random string>
 
-# ── Optional ──────────────────────────────────────────────
+#                  Optional
 SESSION_TTL_SECONDS=3600   # max 86400; never outlives the Supabase token
 ```
 
@@ -278,7 +278,7 @@ docker-compose.yml           hardened local Redis + REST gateway
 
 ## Deploying
 
-1. Push to GitHub and import the repo into **[Vercel](https://vercel.com)**.
+1. Push to GitHub and import the repo into **[Vercel](https://vercel.com)** or your preferred web hosting service.
 2. Create an **[Upstash Redis](https://upstash.com)** database. Use its TCP URL for `REDIS_URL` and its REST URL/token for `REDIS_REST_URL` / `REDIS_REST_TOKEN`.
 3. Add every variable from the table above to your Vercel project settings.
 4. Deploy.
