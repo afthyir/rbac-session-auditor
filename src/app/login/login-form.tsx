@@ -54,8 +54,6 @@ export function LoginForm() {
     router.refresh();
   }
 
-  const input = "w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm outline-none focus:border-indigo-400";
-
   return (
     <form
       className="space-y-3"
@@ -64,17 +62,15 @@ export function LoginForm() {
         submit("in");
       }}
     >
-      <input className={input} type="email" placeholder="Email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input className={input} type="password" placeholder="Password (8+ characters)" autoComplete="current-password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} />
-      <div className="flex gap-2">
-        <button disabled={busy} className="flex-1 rounded-lg bg-indigo-500 py-2 text-sm font-medium hover:bg-indigo-400 disabled:opacity-50">
-          Sign in
-        </button>
-        <button type="button" disabled={busy} onClick={() => submit("up")} className="flex-1 rounded-lg border border-zinc-700 py-2 text-sm hover:bg-zinc-900 disabled:opacity-50">
+      <input className="input" type="email" placeholder="Email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+      <input className="input" type="password" placeholder="Password (8+ characters)" autoComplete="current-password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} />
+      <div className="flex gap-2 pt-1">
+        <button disabled={busy} className="btn btn-primary flex-1">Sign in</button>
+        <button type="button" disabled={busy} onClick={() => submit("up")} className="btn flex-1">
           Create account
         </button>
       </div>
-      {message && <p className="text-sm text-amber-400">{message}</p>}
+      {message && <p className="pt-1 text-sm text-amber-400">{message}</p>}
     </form>
   );
 }

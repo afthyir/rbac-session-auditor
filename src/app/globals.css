@@ -1,6 +1,43 @@
 @import "tailwindcss";
 
+/* Colours and fonts live here. Change them once and the whole site follows. */
+@theme {
+  --color-bg: #060607;
+  --color-panel: #0c0c0f;
+  --color-line: #1d1d22;
+  --color-muted: #8b8b95;
+  --color-accent: #f4f4f5;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: #0b0d12;
-  color: #e6e8ee;
+  background: var(--color-bg);
+  color: var(--color-accent);
+}
+
+::selection {
+  background: #ffffff26;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-panel p-5;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm text-accent transition hover:bg-white/5 disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply border-transparent bg-accent text-bg hover:bg-white/80;
+  }
+  .input {
+    @apply w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm text-accent outline-none placeholder:text-muted focus:border-white/40;
+  }
+  .eyebrow {
+    @apply font-mono text-xs uppercase tracking-widest text-muted;
+  }
 }

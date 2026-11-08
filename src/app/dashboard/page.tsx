@@ -6,21 +6,34 @@ export default async function Dashboard() {
   const session = await requireRole("guest");
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
+    <div className="space-y-8">
+      <div className="flex items-end justify-between">
+        <div className="space-y-2">
+          <p className="eyebrow">Signed in</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
+        </div>
         <SignOutButton />
       </div>
 
-      <dl className="space-y-2 rounded-xl border border-zinc-800 p-4 text-sm">
-        <div className="flex justify-between"><dt className="text-zinc-500">User</dt><dd className="font-mono">{session.sub}</dd></div>
-        <div className="flex justify-between"><dt className="text-zinc-500">Role</dt><dd>{session.role}</dd></div>
-        <div className="flex justify-between"><dt className="text-zinc-500">Session</dt><dd className="font-mono">{session.sid.slice(0, 8)}…</dd></div>
+      <dl className="card divide-y divide-line text-sm">
+        <div className="flex justify-between gap-4 pb-3">
+          <dt className="text-muted">User</dt>
+          <dd className="break-all font-mono">{session.sub}</dd>
+        </div>
+        <div className="flex justify-between gap-4 py-3">
+          <dt className="text-muted">Role</dt>
+          <dd className="font-mono">{session.role}</dd>
+        </div>
+        <div className="flex justify-between gap-4 pt-3">
+          <dt className="text-muted">Session</dt>
+          <dd className="font-mono">{session.sid.slice(0, 8)}…</dd>
+        </div>
       </dl>
 
-      <p className="text-sm text-zinc-500">
-        Try <Link className="underline" href="/engineer">/engineer</Link> or{" "}
-        <Link className="underline" href="/admin">/admin</Link>. Without the role you'll get a 404, and the attempt is logged.
+      <p className="text-sm text-muted">
+        Try <Link className="text-accent underline" href="/engineer">/engineer</Link> or{" "}
+        <Link className="text-accent underline" href="/admin">/admin</Link>. Without the role you get a
+        404, and the attempt is logged.
       </p>
     </div>
   );
